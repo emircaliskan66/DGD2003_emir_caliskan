@@ -1,9 +1,9 @@
 using UnityEngine;
 
-public class Controller : MonoBehaviour
+public class Player : MonoBehaviour
 {
-    [Header("Hareket Ayarlarý")]
-    public float speed = 5f;
+    [Header("Ayarlar")]
+    public float speed = 7f;
     public float jumpForce = 5f;
     public float mouseSensitivity = 2f;
 
@@ -16,9 +16,7 @@ public class Controller : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-
         rb.freezeRotation = true;
-
         Cursor.lockState = CursorLockMode.Locked;
     }
 
@@ -33,7 +31,7 @@ public class Controller : MonoBehaviour
         xRotation = Mathf.Clamp(xRotation, -90f, 90f);
         playerCamera.transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
 
-        if (Input.GetKeyDown(KeyCode.Space) && Mathf.Abs(rb.linearVelocity.y) < 0.01f)
+        if (Input.GetKeyDown(KeyCode.Space) && Mathf.Abs(rb.linearVelocity.y) < 0.05f)
         {
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
         }
@@ -41,16 +39,26 @@ public class Controller : MonoBehaviour
 
     void FixedUpdate()
     {
-        float horizontal = Input.GetAxis("Horizontal");
-        float vertical = Input.GetAxis("Vertical");
+        float horizontal = Input.GetAxisRaw("Horizontal");
+        float vertical = Input.GetAxisRaw("Vertical");
 
         Vector3 moveDirection = (transform.forward * vertical + transform.right * horizontal).normalized;
 
-        rb.MovePosition(rb.position + moveDirection * speed * Time.fixedDeltaTime);
+        if (moveDirection.magnitude > 0.1f)
+        {
+            rb.MovePosition(rb.position + moveDirection * speed * Time.fixedDeltaTime);
+        }
+        else
+        {
+            rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0);
+        }
     }
 
     void LateUpdate()
     {
-        playerCamera.transform.position = transform.position + new Vector3(0f, 0.8f, 0f);
+        if (playerCamera != null)
+        {
+            playerCamera.transform.position = transform.position + new Vector3(0f, 0.8f, 0f);
+        }
     }
 }
