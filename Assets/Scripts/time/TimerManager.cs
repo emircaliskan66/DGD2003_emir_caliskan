@@ -1,20 +1,20 @@
 using UnityEngine;
 using TMPro;
-using UnityEngine.UI; // Image bileþeni için gerekli
+using UnityEngine.UI;
 
 public class TimerManager : MonoBehaviour
 {
     public static TimerManager Instance;
 
     [Header("Timer Settings")]
-    public float startingTime = 60f; // Baþlangýç süresi (saniye)
+    public float startingTime = 60f;
     private float currentTime;
     private bool isTimerRunning = false;
 
     [Header("UI References")]
-    public TextMeshProUGUI timerText; // Ekranda süreyi gösterecek yazý
-    public Image bloodOverlay; // Zaman azalýnca yanýp sönecek kýrmýzý ekran
-    public float dangerTime = 15f; // Son kaç saniyede ekran kýzarsýn?
+    public TextMeshProUGUI timerText;
+    public Image bloodOverlay;
+    public float dangerTime = 15f;
 
     void Awake()
     {
@@ -27,7 +27,6 @@ public class TimerManager : MonoBehaviour
         currentTime = startingTime;
         isTimerRunning = true;
 
-        // Baþlangýçta kýrmýzý ekraný tamamen görünmez yap
         if (bloodOverlay != null)
         {
             bloodOverlay.color = new Color(1, 0, 0, 0);
@@ -36,9 +35,10 @@ public class TimerManager : MonoBehaviour
 
     void Update()
     {
+        // Eðer sayaç çalýþmýyorsa (oyun kazanýldýysa veya bittiyse) aþaðýdakileri HÝÇ YAPMA
         if (!isTimerRunning) return;
 
-        currentTime -= Time.deltaTime; // Süreyi geriye say
+        currentTime -= Time.deltaTime;
 
         if (currentTime <= 0)
         {
@@ -55,12 +55,10 @@ public class TimerManager : MonoBehaviour
     {
         if (timerText == null) return;
 
-        // Süreyi "Dakika:Saniye" (Örn: 01:30) formatýna çevir
         int minutes = Mathf.FloorToInt(currentTime / 60);
         int seconds = Mathf.FloorToInt(currentTime % 60);
         timerText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
 
-        // Son 10 saniyede yazýnýn rengini kýrmýzý yap
         if (currentTime <= 10f)
         {
             timerText.color = Color.red;
@@ -75,32 +73,45 @@ public class TimerManager : MonoBehaviour
     {
         if (bloodOverlay == null) return;
 
-        // Eðer süre tehlike sýnýrýna girdiyse
-        if (currentTime <= dangerTime && currentTime > 0)
+        // DÜZELTME BURADA: Sadece sayaç ÇALIÞIYORSA ve tehlike sýnýrýndaysa kýzar
+        if (isTimerRunning && currentTime <= dangerTime && currentTime > 0)
         {
-            // Mathf.Sin kullanarak nefes alýp veren (pulsing) bir saydamlýk oluþtur (0 ile 0.4 arasý)
             float alpha = (Mathf.Sin(Time.time * 5f) + 1f) / 5f;
             bloodOverlay.color = new Color(1, 0, 0, alpha);
         }
-        else if (currentTime > dangerTime)
+        else
         {
+            // Deðilse (yani tehlikede deðilsek veya oyunu kazandýysak) kýrmýzý ekraný sil
             bloodOverlay.color = new Color(1, 0, 0, 0);
         }
     }
 
-    // Eþya toplandýðýnda çaðrýlacak fonksiyon
     public void AddTime(float bonusTime)
     {
-        if (bonusTime > 0)
+        // Sadece oyun devam ediyorsa süre eklenebilsin
+        if (isTimerRunning && bonusTime > 0)
         {
             currentTime += bonusTime;
             Debug.Log("Zaman kazanildi: +" + bonusTime + " saniye! Yeni sure: " + currentTime);
         }
     }
 
+    // OYUN KAZANILDIÐINDA ÇAÐRILAN FONKSÝYON
     public void StopTimer()
     {
-        isTimerRunning = false;
+        isTimerRunning = false; // Sayacý durdur
+
+        // Kýrmýzý tehlike ekranýný anýnda temizle
+        if (bloodOverlay != null)
+        {
+            bloodOverlay.color = new Color(1, 0, 0, 0);
+        }
+
+        // Sayacýn rengini tekrar beyaza çevir (eðer kýrmýzý kalmýþsa)
+        if (timerText != null)
+        {
+            timerText.color = Color.white;
+        }
     }
 
     void GameOver()
@@ -108,9 +119,6 @@ public class TimerManager : MonoBehaviour
         Debug.Log("Zaman Doldu! GAME OVER");
         timerText.text = "00:00";
 
-        // Ekraný tam kýrmýzý yap
         if (bloodOverlay != null) bloodOverlay.color = new Color(1, 0, 0, 0.6f);
-
-        // TODO: Karakterin hareketini kilitleme veya Yeniden Baþla menüsü açma kodlarý buraya gelecek.
     }
 }
