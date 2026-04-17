@@ -7,13 +7,13 @@ public class PlayerInteract : MonoBehaviour
     public LayerMask interactableLayer;
 
     [Header("References")]
-    public Camera playerCamera; // <-- Otomatik bulmak yerine Inspector'dan atayacaðýz.
+    public Camera playerCamera; 
 
     private IInteractable currentTarget;
 
     void Update()
     {
-        // Kamera atanmamýþsa boþuna hata verme, kodu durdur.
+        
         if (playerCamera == null) return;
 
         HandleRaycast();

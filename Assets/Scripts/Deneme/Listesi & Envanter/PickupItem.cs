@@ -8,6 +8,7 @@ public class PickupItem : MonoBehaviour, IInteractable
     [Header("Proximity Glow Settings")]
     public float proximityRange = 5f;
     public float pulseSpeed = 5f;
+
     public Transform playerTransform;
 
     private Renderer itemRenderer;
@@ -17,10 +18,11 @@ public class PickupItem : MonoBehaviour, IInteractable
     void Start()
     {
         itemRenderer = GetComponent<Renderer>();
+
         if (itemRenderer != null)
         {
             itemMaterial = itemRenderer.material;
-            itemMaterial.SetFloat("_OutlineWidth", 0f);
+            SetOutline(0); 
         }
     }
 
@@ -32,25 +34,27 @@ public class PickupItem : MonoBehaviour, IInteractable
 
         if (distance <= proximityRange)
         {
-            // Sadece menzile ilk girdiðimizde konsola yazdýr
-            if (!isPlayerNearby)
-            {
-                Debug.Log("<color=yellow>Eþyaya yaklaþýldý! Parlama kodu çalýþýyor.</color>");
-                isPlayerNearby = true;
-            }
-
-            // Yanýp sönme matematiði
-            float lerpValue = (Mathf.Sin(Time.time * pulseSpeed) + 1f) / 2f;
-
-            // DÝKKAT: HasProperty kontrolünü sildik (Unity 6 bazen bunu bug'a sokuyor)
-            // Çarpaný da 2f yaptýk ki ýþýk iyice patlasýn, gözden kaçmasýn
-            itemMaterial.SetFloat("_OutlineWidth", lerpValue * 2f);
+            isPlayerNearby = true;
+            HandlePulsingEffect();
         }
         else if (isPlayerNearby)
         {
-            Debug.Log("<color=red>Eþyadan uzaklaþýldý. Parlama durdu.</color>");
             isPlayerNearby = false;
-            itemMaterial.SetFloat("_OutlineWidth", 0f);
+            SetOutline(0);
+        }
+    }
+
+    void HandlePulsingEffect()
+    {
+        float lerpValue = (Mathf.Sin(Time.time * pulseSpeed) + 1f) / 2f;
+        SetOutline(lerpValue);
+    }
+
+    void SetOutline(float intensity)
+    {
+        if (itemMaterial.HasProperty("_OutlineWidth"))
+        {
+            itemMaterial.SetFloat("_OutlineWidth", intensity * 0.5f);
         }
     }
 
@@ -62,9 +66,13 @@ public class PickupItem : MonoBehaviour, IInteractable
         if (itemData != null)
         {
             ScavengerManager.Instance.CollectItem(itemData);
+
             if (TimerManager.Instance != null && itemData.timeBonus > 0)
+            {
                 TimerManager.Instance.AddTime(itemData.timeBonus);
+            }
         }
+
         Destroy(gameObject);
     }
 }

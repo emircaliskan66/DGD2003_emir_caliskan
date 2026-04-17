@@ -1,5 +1,5 @@
 using UnityEngine;
-using UnityEngine.UI; // UI bileþenleri (Image) için gerekli kütüphane
+using UnityEngine.UI;
 
 [RequireComponent(typeof(CharacterController))]
 public class FPSController : MonoBehaviour
@@ -16,11 +16,16 @@ public class FPSController : MonoBehaviour
     public float maxStamina = 100f;
     public float staminaDrainRate = 20f;
     public float staminaRegenRate = 15f;
+
+    // YENÝ: Bekleme Süresi (Cooldown) Deðiþkenleri
+    public float regenCooldown = 1.5f; // Koþmayý býraktýktan sonra kaç saniye bekleyecek?
+    private float currentCooldownTimer = 0f; // Arka planda sayan gizli kronometre
+
     public float currentStamina;
     private bool isSprinting;
 
     [Header("UI References")]
-    public Image staminaBarFill; // Ekranda dolup boþalacak olan sarý/yeþil bar
+    public Image staminaBarFill;
 
     [Header("Headbob Settings")]
     public Transform playerCamera;
@@ -64,18 +69,29 @@ public class FPSController : MonoBehaviour
 
         Vector3 move = transform.right * moveX + transform.forward * moveZ;
 
+        // EÐER KOÞUYORSAK
         if (Input.GetKey(KeyCode.LeftShift) && currentStamina > 0 && move.magnitude > 0)
         {
             isSprinting = true;
             currentSpeed = sprintSpeed;
             currentStamina -= staminaDrainRate * Time.deltaTime;
+
+            // YENÝ: Oyuncu koþtuðu sürece bekleme sayacýný sürekli baþa sar (örneðin 1.5 saniyeye)
+            currentCooldownTimer = regenCooldown;
         }
+        // EÐER KOÞMUYORSAK (Yürüyor veya Duruyorsa)
         else
         {
             isSprinting = false;
             currentSpeed = walkSpeed;
 
-            if (currentStamina < maxStamina)
+            // YENÝ: Önce bekleme sayacýný geriye doðru saydýr
+            if (currentCooldownTimer > 0)
+            {
+                currentCooldownTimer -= Time.deltaTime;
+            }
+            // Sayaç 0'ý vurduysa, staminayý doldurmaya baþla
+            else if (currentStamina < maxStamina)
             {
                 currentStamina += staminaRegenRate * Time.deltaTime;
             }
@@ -83,10 +99,8 @@ public class FPSController : MonoBehaviour
 
         currentStamina = Mathf.Clamp(currentStamina, 0, maxStamina);
 
-        // UI BAR GÜNCELLEMESÝ (YENÝ EKLENEN KISIM)
         if (staminaBarFill != null)
         {
-            // Fill Amount 0 ile 1 arasýnda bir deðer kabul ettiði için bölme iþlemi yapýyoruz
             staminaBarFill.fillAmount = currentStamina / maxStamina;
         }
 

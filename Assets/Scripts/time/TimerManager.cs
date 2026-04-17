@@ -35,7 +35,7 @@ public class TimerManager : MonoBehaviour
 
     void Update()
     {
-        // Eðer sayaç çalýþmýyorsa (oyun kazanýldýysa veya bittiyse) aþaðýdakileri HÝÇ YAPMA
+        
         if (!isTimerRunning) return;
 
         currentTime -= Time.deltaTime;
@@ -73,7 +73,7 @@ public class TimerManager : MonoBehaviour
     {
         if (bloodOverlay == null) return;
 
-        // DÜZELTME BURADA: Sadece sayaç ÇALIÞIYORSA ve tehlike sýnýrýndaysa kýzar
+
         if (isTimerRunning && currentTime <= dangerTime && currentTime > 0)
         {
             float alpha = (Mathf.Sin(Time.time * 5f) + 1f) / 5f;
@@ -81,14 +81,14 @@ public class TimerManager : MonoBehaviour
         }
         else
         {
-            // Deðilse (yani tehlikede deðilsek veya oyunu kazandýysak) kýrmýzý ekraný sil
+
             bloodOverlay.color = new Color(1, 0, 0, 0);
         }
     }
 
     public void AddTime(float bonusTime)
     {
-        // Sadece oyun devam ediyorsa süre eklenebilsin
+
         if (isTimerRunning && bonusTime > 0)
         {
             currentTime += bonusTime;
@@ -96,18 +96,15 @@ public class TimerManager : MonoBehaviour
         }
     }
 
-    // OYUN KAZANILDIÐINDA ÇAÐRILAN FONKSÝYON
     public void StopTimer()
     {
-        isTimerRunning = false; // Sayacý durdur
+        isTimerRunning = false; 
 
-        // Kýrmýzý tehlike ekranýný anýnda temizle
         if (bloodOverlay != null)
         {
             bloodOverlay.color = new Color(1, 0, 0, 0);
         }
 
-        // Sayacýn rengini tekrar beyaza çevir (eðer kýrmýzý kalmýþsa)
         if (timerText != null)
         {
             timerText.color = Color.white;
