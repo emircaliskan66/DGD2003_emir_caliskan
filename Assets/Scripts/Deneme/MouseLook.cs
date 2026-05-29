@@ -2,8 +2,6 @@ using UnityEngine;
 
 public class MouseLook : MonoBehaviour
 {
-    [Header("Mouse Settings")]
-    public float mouseSensitivity = 100f;
     public Transform playerBody;
 
     private float xRotation = 0f;
@@ -17,9 +15,10 @@ public class MouseLook : MonoBehaviour
 
     void Update()
     {
-        
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+        float _mouseSensitivity = PlayerPrefs.GetFloat("MouseSensitivity", 5f) * 100f;
+
+        float mouseX = Input.GetAxis("Mouse X") * _mouseSensitivity * Time.deltaTime;
+        float mouseY = Input.GetAxis("Mouse Y") * _mouseSensitivity  * Time.deltaTime;
 
         
         xRotation -= mouseY;

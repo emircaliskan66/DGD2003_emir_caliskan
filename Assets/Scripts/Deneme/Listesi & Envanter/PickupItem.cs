@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.VFX;
 
 public class PickupItem : MonoBehaviour, IInteractable
 {
@@ -10,6 +11,9 @@ public class PickupItem : MonoBehaviour, IInteractable
     public float pulseSpeed = 5f;
 
     public Transform playerTransform;
+
+    [Header("Collect VFX")]
+    [SerializeField] private VisualEffect collectVFXPrefab;
 
     private Renderer itemRenderer;
     private Material itemMaterial;
@@ -73,6 +77,20 @@ public class PickupItem : MonoBehaviour, IInteractable
             }
         }
 
+        if (collectVFXPrefab != null)
+        {
+            VisualEffect vfx = Instantiate(
+                collectVFXPrefab,
+                transform.position + Vector3.up * 1f,
+                Quaternion.identity
+            );
+
+            vfx.Play();
+            Destroy(vfx.gameObject, 2f);
+        }
+
         Destroy(gameObject);
     }
+
+
 }

@@ -5,6 +5,8 @@ using UnityEngine.UI;
 public class TimerManager : MonoBehaviour
 {
     public static TimerManager Instance;
+    [SerializeField] private PanelManager panelManager;
+    private bool isGameOver = false;
 
     [Header("Timer Settings")]
     public float startingTime = 60f;
@@ -113,9 +115,35 @@ public class TimerManager : MonoBehaviour
 
     void GameOver()
     {
+
+        if (isGameOver) return;
+        isGameOver = true;
+
         Debug.Log("Zaman Doldu! GAME OVER");
         timerText.text = "00:00";
 
-        if (bloodOverlay != null) bloodOverlay.color = new Color(1, 0, 0, 0.6f);
+        if (bloodOverlay != null)
+            bloodOverlay.color = new Color(1, 0, 0, 0.6f);
+
+        panelManager.OpenGameOverPanel();
+    }
+
+    public float GetCurrentTime()
+    {
+        return currentTime;
+    }
+
+    public void LoadTime(float loadedTime)
+    {
+        currentTime = loadedTime;
+        isTimerRunning = true;
+        isGameOver = false;
+
+        UpdateTimerUI();
+
+        if (bloodOverlay != null)
+        {
+            bloodOverlay.color = new Color(1, 0, 0, 0);
+        }
     }
 }
