@@ -143,12 +143,21 @@ public class SaveManager : MonoBehaviour
             controller.enabled = false;
         }
 
-        playerTransform.position = new Vector3(data.playerPosX, data.playerPosY, data.playerPosZ);
+        Vector3 loadedPosition = new Vector3(data.playerPosX, data.playerPosY, data.playerPosZ);
+        playerTransform.position = loadedPosition + Vector3.up * 0.3f;
+
         playerTransform.eulerAngles = new Vector3(data.playerRotX, data.playerRotY, data.playerRotZ);
 
         if (controller != null)
         {
             controller.enabled = true;
+        }
+
+        FPSController fpsController = playerTransform.GetComponent<FPSController>();
+
+        if (fpsController != null)
+        {
+            fpsController.ResetVelocity();
         }
 
         if (TimerManager.Instance != null)

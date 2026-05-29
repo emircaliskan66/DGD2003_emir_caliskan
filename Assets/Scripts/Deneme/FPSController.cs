@@ -144,4 +144,9 @@ public class FPSController : MonoBehaviour
             );
         }
     }
+
+    public void ResetVelocity()
+    {
+        velocity = Vector3.zero;
+    }
 }

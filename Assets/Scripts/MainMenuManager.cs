@@ -8,7 +8,7 @@ public class MainMenuManager : MonoBehaviour
 
     public void StartGame()
     {
-        SceneManager.LoadScene("Floor2");
+        SceneManager.LoadScene("GameScene");
     }
 
     public void OpenSettings()
